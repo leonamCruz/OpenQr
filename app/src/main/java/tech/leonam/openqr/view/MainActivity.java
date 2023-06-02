@@ -1,17 +1,24 @@
 package tech.leonam.openqr.view;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -20,6 +27,8 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+
+import java.io.FileNotFoundException;
 
 import tech.leonam.openqr.R;
 
@@ -31,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     private TextureView view;
     private Camera camera;
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
+    private static final int PICK_IMAGE_REQUEST_CODE = 1;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 200;
+
+// Dentro do método onCreate() ou em qualquer outro lugar apropriado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +54,9 @@ public class MainActivity extends AppCompatActivity {
         iniciarComponentes();
         iniciarAnuncios();
         clickNaCamera();
-        clickNaGaleria();
+       // clickNaGaleria();
         criarPreview();
+        pedirPermissao();
     }
 
     public void iniciarComponentes() {
@@ -51,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         superior = findViewById(R.id.adsSuperior);
         inferior = findViewById(R.id.adsInferior);
         view = findViewById(R.id.camera);
+        TextView texto = findViewById(R.id.textView2);
         camera = Camera.open();
     }
 
@@ -68,9 +83,15 @@ public class MainActivity extends AppCompatActivity {
             try {
                 var bitmap = capturaImagem();
                 var qr = QRCodeDecoder.decodeQRCode(bitmap);
-                System.out.println(qr);
+                if (qr.equals("Not Found")) {
+                    Toast.makeText(this, R.string.n_o_consegui_ler_seu_qr_code, Toast.LENGTH_LONG).show();
+                } else {
+                    var intencao = new Intent(this, ResultadoDoQr.class);
+                    intencao.putExtra("qr", qr);
+                    startActivity(intencao);
+                }
 
-            }catch (Exception r){
+            } catch (Exception r) {
                 r.printStackTrace();
             }
 
@@ -79,8 +100,36 @@ public class MainActivity extends AppCompatActivity {
 
     public void clickNaGaleria() {
         galeria.setOnClickListener(e -> {
+            var intencao = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivity(intencao);
 
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            // Obtenha a URI da imagem selecionada
+            Uri imageUri = data.getData();
+
+            try {
+                // Decodifique a URI em um objeto Bitmap
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                var qr = QRCodeDecoder.decodeQRCode(bitmap);
+                if (qr.equals("Not Found")) {
+                    Toast.makeText(this, getString(R.string.copiado_com_sucesso), Toast.LENGTH_LONG).show();
+                } else {
+                    var intencao = new Intent(this, ResultadoDoQr.class);
+                    intencao.putExtra("qr", qr);
+                    startActivity(intencao);
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void criarPreview() {
@@ -91,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                configCam(width,height);
+                configCam(width, height);
                 openCamera();
             } else {
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
@@ -114,31 +163,31 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void configCam(int viewWidth, int viewHeight) {
-            var parameters = camera.getParameters();
-            Camera.Size bestSize = null;
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-            var supportedSizes = parameters.getSupportedPreviewSizes();
-            float targetRatio = (float) viewWidth / viewHeight;
+        var parameters = camera.getParameters();
+        Camera.Size bestSize = null;
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        var supportedSizes = parameters.getSupportedPreviewSizes();
+        float targetRatio = (float) viewWidth / viewHeight;
 
-            for (Camera.Size size : supportedSizes) {
-                float ratio = (float) size.width / size.height;
-                if (Math.abs(ratio - targetRatio) <= 0.1) {
-                    if (bestSize == null) {
+        for (Camera.Size size : supportedSizes) {
+            float ratio = (float) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) <= 0.1) {
+                if (bestSize == null) {
+                    bestSize = size;
+                } else {
+                    int currentArea = bestSize.width * bestSize.height;
+                    int newArea = size.width * size.height;
+                    if (newArea > currentArea) {
                         bestSize = size;
-                    } else {
-                        int currentArea = bestSize.width * bestSize.height;
-                        int newArea = size.width * size.height;
-                        if (newArea > currentArea) {
-                            bestSize = size;
-                        }
                     }
                 }
             }
+        }
 
-            if (bestSize != null) {
-                parameters.setPreviewSize(bestSize.width, bestSize.height);
-                camera.setParameters(parameters);
-            }
+        if (bestSize != null) {
+            parameters.setPreviewSize(bestSize.width, bestSize.height);
+            camera.setParameters(parameters);
+        }
     }
 
     private void openCamera() {
@@ -174,7 +223,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    public Bitmap capturaImagem(){
+
+    public Bitmap capturaImagem() {
         return view.getBitmap();
+    }
+
+    public void pedirPermissao() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        } else {
+            AlertDialog.Builder eita = new AlertDialog.Builder(this);
+            eita.setMessage("Ei maninho eu preciso das permissões, se não eu não funciono");
+            eita.setTitle("Aceita aí");
+            eita.create().show();
+            pedirPermissao();
+        }
     }
 }

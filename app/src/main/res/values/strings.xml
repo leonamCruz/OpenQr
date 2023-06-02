@@ -3,4 +3,12 @@
     <string name="capturar">Capturar</string>
     <string name="galeria">Galeria</string>
     <string name="pedido">Você deve aceitar o pedido da câmera</string>
+    <string name="obrigado_por_utilizar">Obrigado por utilizar</string>
+    <string name="copiar">Copiar</string>
+    <string name="ola">Olá!</string>
+    <string name="texto">Texto</string>
+    <string name="vazio" />
+    <string name="tente_novamente">Tente Novamente.</string>
+    <string name="copiado_com_sucesso">Copiado com sucesso</string>
+    <string name="n_o_consegui_ler_seu_qr_code">Não consegui ler seu QR Code</string>
 </resources>
