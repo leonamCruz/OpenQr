@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         iniciarComponentes();
         iniciarAnuncios();
         clickNaCamera();
-       // clickNaGaleria();
+        clickNaGaleria();
         criarPreview();
         pedirPermissao();
     }
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         inferior = findViewById(R.id.adsInferior);
         view = findViewById(R.id.camera);
         TextView texto = findViewById(R.id.textView2);
+        pedirPermissao();
         camera = Camera.open();
     }
 
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     public void clickNaGaleria() {
         galeria.setOnClickListener(e -> {
             var intencao = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivity(intencao);
+            startActivityForResult(intencao,PICK_IMAGE_REQUEST_CODE);
 
         });
     }
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                 var qr = QRCodeDecoder.decodeQRCode(bitmap);
                 if (qr.equals("Not Found")) {
-                    Toast.makeText(this, getString(R.string.copiado_com_sucesso), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.n_o_consegui_ler_seu_qr_code), Toast.LENGTH_LONG).show();
                 } else {
                     var intencao = new Intent(this, ResultadoDoQr.class);
                     intencao.putExtra("qr", qr);
@@ -214,12 +214,6 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
-            } else {
-                AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.setTitle(R.string.pedido);
-                alert.setMessage(R.string.pedido);
-                alert.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> finish());
-                alert.create().show();
             }
         }
     }
@@ -233,12 +227,6 @@ public class MainActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
-        } else {
-            AlertDialog.Builder eita = new AlertDialog.Builder(this);
-            eita.setMessage("Ei maninho eu preciso das permissões, se não eu não funciono");
-            eita.setTitle("Aceita aí");
-            eita.create().show();
-            pedirPermissao();
         }
     }
 }

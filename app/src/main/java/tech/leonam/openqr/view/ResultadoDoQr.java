@@ -70,7 +70,7 @@ public class ResultadoDoQr extends AppCompatActivity {
         superior.loadAd(requestOne);
         inferior.loadAd(requestTwo);
 
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", requestThree, new InterstitialAdLoadCallback() {
+        InterstitialAd.load(this, "ca-app-pub-8135010806374552/1627640697", requestThree, new InterstitialAdLoadCallback() {
             @Override
             public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
                 super.onAdLoaded(interstitialAd);
