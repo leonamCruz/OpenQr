@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,8 +42,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 100;
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 200;
+    private ImageView lanterna;
+    private Camera.Parameters parameters;
+    private Boolean isLigado;
 
-// Dentro do método onCreate() ou em qualquer outro lugar apropriado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +58,32 @@ public class MainActivity extends AppCompatActivity {
         clickNaCamera();
         clickNaGaleria();
         criarPreview();
+        clickNaLanterna();
         pedirPermissao();
     }
 
+    public void clickNaLanterna() {
+        lanterna.setOnClickListener(e -> {
+            if (isLigado) {
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                camera.setParameters(parameters);
+                isLigado = false;
+            } else {
+                parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                camera.setParameters(parameters);
+                isLigado = true;
+            }
+        });
+    }
     public void iniciarComponentes() {
         tiraFoto = findViewById(R.id.capturar);
         galeria = findViewById(R.id.galeria);
         superior = findViewById(R.id.adsSuperior);
         inferior = findViewById(R.id.adsInferior);
         view = findViewById(R.id.camera);
+        lanterna = findViewById(R.id.lanterna);
         TextView texto = findViewById(R.id.textView2);
+        isLigado = false;
         pedirPermissao();
         camera = Camera.open();
     }
@@ -116,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 // Decodifique a URI em um objeto Bitmap
-                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                var bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                 var qr = QRCodeDecoder.decodeQRCode(bitmap);
                 if (qr.equals("Not Found")) {
                     Toast.makeText(this, getString(R.string.n_o_consegui_ler_seu_qr_code), Toast.LENGTH_LONG).show();
@@ -163,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void configCam(int viewWidth, int viewHeight) {
-        var parameters = camera.getParameters();
+        parameters = camera.getParameters();
         Camera.Size bestSize = null;
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         var supportedSizes = parameters.getSupportedPreviewSizes();

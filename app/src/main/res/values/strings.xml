@@ -11,4 +11,5 @@
     <string name="tente_novamente">Tente Novamente.</string>
     <string name="copiado_com_sucesso">Copiado com sucesso</string>
     <string name="n_o_consegui_ler_seu_qr_code">Não consegui ler seu QR Code</string>
+    <string name="flashlight">Flashlight</string>
 </resources>

@@ -6,41 +6,52 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
-    <TextureView
-        android:id="@+id/camera"
-        android:layout_width="230sp"
-        android:layout_height="230sp"
-        app:layout_constraintDimensionRatio="1:1"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardCamera"
+        android:layout_width="300sp"
+        android:layout_height="300sp"
+        app:cardCornerRadius="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.414" />
+        app:layout_constraintVertical_bias="0.414" >
+
+
+        <TextureView
+            android:id="@+id/camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintDimensionRatio="1:1">
+
+        </TextureView>
+
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/capturar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/capturar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/camera"
-        app:layout_constraintHorizontal_bias="0.285"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/camera"
-        app:layout_constraintVertical_bias="0.205" />
+        app:layout_constraintBottom_toTopOf="@+id/adsInferior"
+        app:layout_constraintEnd_toEndOf="@+id/cardCamera"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/cardCamera"
+        app:layout_constraintTop_toBottomOf="@+id/cardCamera"
+        app:layout_constraintVertical_bias="0.2" />
 
     <Button
         android:id="@+id/galeria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/galeria"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.736"
-        app:layout_constraintStart_toStartOf="@+id/camera"
-        app:layout_constraintTop_toBottomOf="@+id/camera"
-        app:layout_constraintVertical_bias="0.205" />
+        app:layout_constraintBottom_toTopOf="@+id/adsInferior"
+        app:layout_constraintEnd_toEndOf="@+id/cardCamera"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/cardCamera"
+        app:layout_constraintTop_toBottomOf="@+id/cardCamera"
+        app:layout_constraintVertical_bias="0.2" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adsSuperior"
@@ -48,7 +59,7 @@
         android:layout_height="wrap_content"
         app:adSize="FULL_BANNER"
         app:adUnitId="ca-app-pub-8135010806374552/5267502804"
-        app:layout_constraintBottom_toTopOf="@+id/camera"
+        app:layout_constraintBottom_toTopOf="@+id/cardCamera"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,7 +76,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/camera"
+        app:layout_constraintTop_toBottomOf="@+id/cardCamera"
         app:layout_constraintVertical_bias="0.743" />
 
     <TextView
@@ -73,9 +84,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/vazio"
-        app:layout_constraintBottom_toTopOf="@+id/camera"
+        app:layout_constraintBottom_toTopOf="@+id/cardCamera"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/adsSuperior" />
+
+    <ImageView
+        android:id="@+id/lanterna"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/cardCamera"
+        app:layout_constraintEnd_toEndOf="@+id/cardCamera"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/cardCamera"
+        app:layout_constraintTop_toBottomOf="@+id/adsSuperior"
+        app:layout_constraintVertical_bias="0.468"
+        app:srcCompat="@drawable/lanterna"
+        android:contentDescription="@string/flashlight" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
